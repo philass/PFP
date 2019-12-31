@@ -83,9 +83,9 @@ let mkII2 [m] (shp: [m]i32) : []i32 =
 --  in  (S_1_res, D_res)
 
 let flatIf [n][m] (f: i32 -> i32) (g: i32->i32) (bs: [m]bool) (S1_xss: [m]i32, D_xss: [n]i32) : ([]i32, []i32) =
-  let (spl, iinds) = partition2 (\i -> bs[i]) (iota (length bs))
-  let (S_then, S_else) = split spl (map (\ii -> S1_xss[ii]) inds)
-  let F = mkFlagArray shp 0 (replicate m 1)
+  let (spl, iinds) = partition2 (bs) 9 (iota (length bs))
+  let (S_then, S_else) = split spl (map (\ii -> S1_xss[ii]) iinds)
+  let F = mkFlagArray S1_xss 0 (replicate m 1)
   let II1 = sgmscan (+) 0 F F |> map (-1)
   let mask_xss = map (\sgmind -> bs[sgmind]) II1
   let (brk, Dp_xss) = partition2 mask_xss D_xss

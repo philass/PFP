@@ -18,15 +18,7 @@ let gaussian_elimination [n] [m] (A: [n][m]f32): [n][m]f32 =
     in tabulate_2d n m elem
 
 
-
-let identity n : [n][n]f32 = 
-  let f = (\i -> let row = replicate n 0
-                 let row[i] = 1
-                 in row)
-  in map f (iota n)
-
 let matrix_inverse [n] (A: [n][n]f32): [n][n]f32 = 
---  let A_aug = transpose (concat (transpose A) (transpose (identity n)))
   let A_aug = unsafe tabulate_2d n (2 * n) (\i j -> if j < n then A[i, j] else 
                                                                 (if i == (j - n) then 1 else 0))
   let R_aug = gaussian_elimination A_aug

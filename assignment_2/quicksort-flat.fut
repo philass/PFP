@@ -96,12 +96,44 @@ let partition2L 't [n] [m]
                 -- the shape of condsL is also shp
                 (condsL: [n]bool) (dummy: t)
                 (shp: [m]i32, arr: [n]t) :
-                ([m]i32, ([m]i32, [n]t)) =
+                 -- ([m]i32, ([m]i32, [n]t)) =
+                 ([m]i32, ([m]i32, [n]i32)) =
+
   let begs   = scan (+) 0 shp
   let flags  = mkFlagArray shp 0i32 (map (+1) (iota m))
   let outinds= sgmSumInt flags <| map (\f -> if f==0 then 0 else f-1) flags
 
-  in  (shp, (shp,arr))
+  let tflgs = map (\ c -> if c then 1 else 0) condsL
+  let fflgs = map (\ b -> 1 - b) tflgs
+--
+  let indsT = scan (+) 0 tflgs
+  let shp_accum = scan (+) 0 shp
+  let offsets = map (\i -> let index = shp_accum[i]
+                           in (if index == 0 then 0 else indsT[index-1])) (iota m)
+  let offsets_rot = map (\i->if i==0 then 0       
+                         else offsets[i-1]
+                    ) (iota m)
+  let offsetsT = map (\i -> offsets_rot[outinds[i]]) (iota n)
+  
+  
+  
+  let tmp   = scan (+) 0 fflgs
+  let shp_accum_rot = map (\i->if i==0 then 0       
+                         else shp_accum[i-1]
+                    ) (iota m)
+
+  let indsF = map2 (\t i -> t + offsets[outinds[i]] - shp_accum_rot[outinds[i]]) tmp (iota n)
+  
+  
+  
+  let res = map4 (\c indT indF off -> if c then (indT-1 - off) else (indF - 1)) condsL indsT indsF offsetsT
+  
+--
+--  let inds  = map3 (\ c indT indF -> if c then indT-1 else indF-1) conds indsT indsF
+--
+--  let fltarr= scatter (replicate n dummy) inds arr
+
+  in  (shp, (shp, res))--arr))
 
 -----------------------
 --- Flat Quicksort
@@ -114,33 +146,33 @@ let isSorted [n] (arr: [n]f32) : bool =
     map (\i-> unsafe (arr[i] <= arr[i+1])) (iota (n-1))
     |> reduce (&&) true
 
-let quicksortL [n][m] (shp: [m]i32, arr: [n]f32) : ([]i32, []f32) = 
-  let stop  = isSorted arr
-  let count = 0 
-  
-  let (shp,arr,_,_) =
-    loop(shp,arr,stop,count) while (!stop) do
-      let begs   = scan (+) 0 shp
-      let flags  = mkFlagArray shp 0i32 <| map (+1) <| iota (length shp)
-
-      let outinds= sgmSumInt flags <| map (\f -> if f==0 then 0 else f-1) flags
-
-      let rL   = map (\u -> randomInd(0,u-1) count) shp
-      let pivL = map3(\r l i -> if l <= 0 then 0.0
-                                else let off = if i > 0 then unsafe begs[i-1] else 0
-                                     in  unsafe arr[off + r] 
-                     ) rL shp (iota (length shp))
-
-      let condsL = map2(\a sgmind -> unsafe pivL[sgmind] > a ) arr outinds
-
-      let (ps, (_,arr')) = partition2L condsL 0.0f32 (shp, arr)
-
-      -- shp' = [p, n-p]
-      let shp' = filter (!=0) <| flatten <| map2 (\p s -> if s==0 then [0,0] else [p,s-p]) ps shp
-
-      let stop' = isSorted arr'
-      in (shp', arr', stop', count+1)
-  in (shp,arr)
+--let quicksortL [n][m] (shp: [m]i32, arr: [n]f32) : ([]i32, []f32) = 
+--  let stop  = isSorted arr
+--  let count = 0 
+--  
+--  let (shp,arr,_,_) =
+--    loop(shp,arr,stop,count) while (!stop) do
+--      let begs   = scan (+) 0 shp
+--      let flags  = mkFlagArray shp 0i32 <| map (+1) <| iota (length shp)
+--
+--      let outinds= sgmSumInt flags <| map (\f -> if f==0 then 0 else f-1) flags
+--
+--      let rL   = map (\u -> randomInd(0,u-1) count) shp
+--      let pivL = map3(\r l i -> if l <= 0 then 0.0
+--                                else let off = if i > 0 then unsafe begs[i-1] else 0
+--                                     in  unsafe arr[off + r] 
+--                     ) rL shp (iota (length shp))
+--
+--      let condsL = map2(\a sgmind -> unsafe pivL[sgmind] > a ) arr outinds
+--
+--      let (ps, (_,arr')) = partition2L condsL 0.0f32 (shp, arr)
+--
+--      -- shp' = [p, n-p]
+--      let shp' = filter (!=0) <| flatten <| map2 (\p s -> if s==0 then [0,0] else [p,s-p]) ps shp
+--
+--      let stop' = isSorted arr'
+--      in (shp', arr', stop', count+1)
+--  in (shp,arr)
 
 -----------------------
 ---   test program  ---
@@ -154,7 +186,7 @@ let main0 [m][n] (shp: [m]i32) (arr: [n]i32) : ([m]i32, [m]i32, [n]i32) =
     in  (ps, shp', arr')
 
 -- futhark dataset -b --f32-bounds=-1000000.0:1000000.0 -g [10000000]f32 | ./quicksort-flat -t /dev/stderr -r 2 > /dev/null
-let main [n] (arr: [n]f32) =
-    let (_,res) = quicksortL ([n], arr)   
-    in  res
+--let main [n] (arr: [n]f32) =
+--   let (_,res) = quicksortL ([n], arr)   
+ --   in  res
 
