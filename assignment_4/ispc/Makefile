@@ -3,11 +3,12 @@
 # sequential execution for some targets.  I am not certain whether
 # this is an ISPC bug.
 
-ISPC_TARGET?=sse4
+#ISPC_TARGET?=sse4
+ISPC_TARGET?=host
 ISPC=ispc -O3 --target=$(ISPC_TARGET)
 CC=gcc
 CFLAGS=-O3 -std=c99 -Wall -Wextra -pedantic
-PROGRAMS=mandelbrot sum relax filter scan pack rle
+PROGRAMS=mandelbrot sum relax filter scan pack rle phil_scan
 
 .PHONY: all run
 
