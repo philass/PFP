@@ -1,4 +1,3 @@
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -16,13 +15,13 @@ static inline void scan_c(float *output, float *input, int n) {
 }
 
 int main() {
-  int n = 100;
+  int n = 100000;
   float *input = calloc(n, sizeof(float));
   float *c_output = calloc(n, sizeof(float));
   float *ispc_output = calloc(n, sizeof(float));
 
   for (int i = 0; i < n; i++) {
-    input[i] = i + 1;
+    input[i] = (float)rand()/RAND_MAX;
   }
 
   int runtime;
@@ -37,15 +36,12 @@ int main() {
   }
   printf("ISPC:              %8d microseconds\n", runtime);
 
-  for (int i = 0; i < 20; i++) {
-  //for (int i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
     // If necessary, fiddle with the tolerance here (recall that
     // floating-point addition is not actually associative).
-    fprintf(stderr, "Results are [%d]: %f and  %f\n for input %f\n", i, c_output[i], ispc_output[i], input[i]);
-
-//    if (fabsf(c_output[i] - ispc_output[i]) > 0.001) {
- //     fprintf(stderr, "Results differ at [%d]: %f != %f\n", i, c_output[i], ispc_output[i]);
-  //    return 1;
-    //}
+    if (fabsf(c_output[i] - ispc_output[i]) > 1) {
+      fprintf(stderr, "Results differ at [%d]: %f != %f\n", i, c_output[i], ispc_output[i]);
+      return 1;
+    }
   }
 }
