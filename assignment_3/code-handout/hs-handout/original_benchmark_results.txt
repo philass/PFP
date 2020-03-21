@@ -1,0 +1,51 @@
+benchmarking bvh/box
+time                 1.410 ms   (1.405 ms .. 1.416 ms)
+                     1.000 R²   (1.000 R² .. 1.000 R²)
+mean                 1.408 ms   (1.403 ms .. 1.414 ms)
+std dev              17.16 μs   (13.96 μs .. 21.99 μs)
+
+benchmarking bvh/irreg
+time                 62.72 ms   (60.28 ms .. 64.28 ms)
+                     0.997 R²   (0.989 R² .. 1.000 R²)
+mean                 64.70 ms   (63.62 ms .. 66.60 ms)
+std dev              2.597 ms   (1.380 ms .. 3.892 ms)
+
+benchmarking rendering/rgbbox/10x10
+time                 792.0 μs   (789.2 μs .. 794.7 μs)
+                     1.000 R²   (1.000 R² .. 1.000 R²)
+mean                 791.1 μs   (788.2 μs .. 794.3 μs)
+std dev              10.35 μs   (8.764 μs .. 12.26 μs)
+
+benchmarking rendering/rgbbox/100x100
+time                 78.58 ms   (78.13 ms .. 79.15 ms)
+                     1.000 R²   (1.000 R² .. 1.000 R²)
+mean                 78.15 ms   (77.51 ms .. 78.41 ms)
+std dev              707.2 μs   (206.9 μs .. 1.214 ms)
+
+benchmarking rendering/rgbbox/200x200
+time                 307.8 ms   (306.4 ms .. 309.6 ms)
+                     1.000 R²   (1.000 R² .. 1.000 R²)
+mean                 306.7 ms   (305.4 ms .. 307.6 ms)
+std dev              1.409 ms   (677.2 μs .. 1.972 ms)
+variance introduced by outliers: 16% (moderately inflated)
+
+benchmarking rendering/irreg/10x10
+time                 403.9 μs   (401.5 μs .. 406.4 μs)
+                     1.000 R²   (0.999 R² .. 1.000 R²)
+mean                 407.1 μs   (404.6 μs .. 410.0 μs)
+std dev              9.425 μs   (7.340 μs .. 12.23 μs)
+variance introduced by outliers: 15% (moderately inflated)
+
+benchmarking rendering/irreg/100x100
+time                 31.44 ms   (30.91 ms .. 31.92 ms)
+                     0.999 R²   (0.998 R² .. 1.000 R²)
+mean                 31.43 ms   (31.07 ms .. 31.79 ms)
+std dev              740.2 μs   (555.5 μs .. 1.046 ms)
+
+benchmarking rendering/irreg/200x200
+time                 120.6 ms   (119.1 ms .. 121.6 ms)
+                     1.000 R²   (0.999 R² .. 1.000 R²)
+mean                 121.5 ms   (120.6 ms .. 122.7 ms)
+std dev              1.620 ms   (597.7 μs .. 2.504 ms)
+variance introduced by outliers: 11% (moderately inflated)
+
