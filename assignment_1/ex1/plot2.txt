@@ -1,0 +1,38 @@
+futhark dataset -b --i32-bounds=-10000:10000 \
+                  -g [100]i32 -g [100]i32 > two_100_i32s
+futhark dataset -b --i32-bounds=-10000:10000 \
+                  -g [1000]i32 -g [1000]i32 > two_1000_i32s
+futhark dataset -b --i32-bounds=-10000:10000 \
+                  -g [10000]i32 -g [10000]i32 > two_10000_i32s
+futhark dataset -b --i32-bounds=-10000:10000 \
+                  -g [100000]i32 -g [100000]i32 > two_100000_i32s
+futhark dataset -b --i32-bounds=-10000:10000 \
+                  -g [1000000]i32 -g [1000000]i32 > two_1000000_i32s
+futhark dataset -b --i32-bounds=-10000:10000 \
+                  -g [5000000]i32 -g [5000000]i32 > two_5000000_i32s
+futhark dataset -b --i32-bounds=-10000:10000 \
+                  -g [10000000]i32 -g [10000000]i32 > two_10000000_i32s
+futhark bench --backend=opencl \
+                --json=exercise_1_3-opencl.json \
+                ex1_3.fut
+Compiling ex1_3.fut...
+Results for ex1_3.fut:
+dataset two_100_i32s:           45.40μs (avg. of 10 runs; RSD: 0.09)
+dataset two_1000_i32s:          46.40μs (avg. of 10 runs; RSD: 0.04)
+dataset two_10000_i32s:         48.90μs (avg. of 10 runs; RSD: 0.10)
+dataset two_100000_i32s:        61.60μs (avg. of 10 runs; RSD: 0.12)
+dataset two_1000000_i32s:       87.40μs (avg. of 10 runs; RSD: 0.01)
+dataset two_5000000_i32s:      228.60μs (avg. of 10 runs; RSD: 0.01)
+dataset two_10000000_i32s:     384.30μs (avg. of 10 runs; RSD: 0.01)
+futhark bench --backend=c \
+                --json=exercise_1_3-c.json \
+                ex1_3.fut
+Compiling ex1_3.fut...
+Results for ex1_3.fut:
+dataset two_100_i32s:            0.10μs (avg. of 10 runs; RSD: 3.00)
+dataset two_1000_i32s:           1.10μs (avg. of 10 runs; RSD: 0.27)
+dataset two_10000_i32s:          9.50μs (avg. of 10 runs; RSD: 0.05)
+dataset two_100000_i32s:        92.00μs (avg. of 10 runs; RSD: 0.05)
+dataset two_1000000_i32s:      923.30μs (avg. of 10 runs; RSD: 0.02)
+dataset two_5000000_i32s:     4644.10μs (avg. of 10 runs; RSD: 0.03)
+dataset two_10000000_i32s:    9364.70μs (avg. of 10 runs; RSD: 0.00)

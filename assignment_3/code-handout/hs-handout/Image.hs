@@ -16,6 +16,9 @@ data Image =
         }
   deriving (Generic, NFData)
 
+
+-- All places where maps occur are candidates for Parallelism
+
 image2ppm :: Image -> String
 image2ppm img =
   unlines $

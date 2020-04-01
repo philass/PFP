@@ -1,0 +1,38 @@
+futhark dataset -b --i32-bounds=-10000:10000 \
+                  -g [100]i32 > two_100_i32s
+futhark dataset -b --i32-bounds=-10000:10000 \
+                  -g [1000]i32 > two_1000_i32s
+futhark dataset -b --i32-bounds=-10000:10000 \
+                  -g [10000]i32 > two_10000_i32s
+futhark dataset -b --i32-bounds=-10000:10000 \
+                  -g [100000]i32 > two_100000_i32s
+futhark dataset -b --i32-bounds=-10000:10000 \
+                  -g [1000000]i32 > two_1000000_i32s
+futhark dataset -b --i32-bounds=-10000:10000 \
+                  -g [5000000]i32 > two_5000000_i32s
+futhark dataset -b --i32-bounds=-10000:10000 \
+                  -g [10000000]i32 > two_10000000_i32s
+futhark bench --backend=opencl \
+                --json=exercise_2_1-opencl.json \
+                hillis-steele.fut
+Compiling hillis-steele.fut...
+Results for hillis-steele.fut:
+dataset two_100_i32s:           72.70μs (avg. of 10 runs; RSD: 0.09)
+dataset two_1000_i32s:         107.30μs (avg. of 10 runs; RSD: 0.10)
+dataset two_10000_i32s:        140.80μs (avg. of 10 runs; RSD: 0.11)
+dataset two_100000_i32s:       301.20μs (avg. of 10 runs; RSD: 0.06)
+dataset two_1000000_i32s:      882.10μs (avg. of 10 runs; RSD: 0.01)
+dataset two_5000000_i32s:     4040.80μs (avg. of 10 runs; RSD: 0.00)
+dataset two_10000000_i32s:    8421.80μs (avg. of 10 runs; RSD: 0.00)
+futhark bench --backend=c \
+                --json=exercise_2_1-c.json \
+                hillis-steele.fut
+Compiling hillis-steele.fut...
+Results for hillis-steele.fut:
+dataset two_100_i32s:            1.60μs (avg. of 10 runs; RSD: 0.41)
+dataset two_1000_i32s:          10.70μs (avg. of 10 runs; RSD: 0.04)
+dataset two_10000_i32s:        131.90μs (avg. of 10 runs; RSD: 0.05)
+dataset two_100000_i32s:      1569.50μs (avg. of 10 runs; RSD: 0.06)
+dataset two_1000000_i32s:    19728.00μs (avg. of 10 runs; RSD: 0.01)
+dataset two_5000000_i32s:   108392.10μs (avg. of 10 runs; RSD: 0.04)
+dataset two_10000000_i32s:  428390.80μs (avg. of 10 runs; RSD: 0.02)
