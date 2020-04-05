@@ -1,6 +1,6 @@
 open import "lib/github.com/diku-dk/sorts/radix_sort"
 
-let helper [n] 'a (to_sort : [n]a)  key_fun : [n]i32 = 
+let sort_wrapper [n] 'a (to_sort : [n]a)  key_fun : [n]i32 = 
 	radix_sort_by_key key_fun i32.num_bits i32.get_bit (iota (n))
 
 --let helper1 [n] 'a (to_sort : [n]a)  : [n]i32 = 
@@ -29,31 +29,20 @@ let seg_reduce [n] 't (op: t -> t -> t) (ne: t)
   let (reductions, _) = unzip (filter  (\(_, i) -> i) (zip res idx_to_keep))
   in reductions
 
-
 let iota_helper [m] 't (temp : [m]t) : [m]i32 = iota m
 
 let reduce_by_indexx 'a [m] [n] (dest : *[m]a)
 	(f : a -> a -> a) (ne : a)
 	(is : [n]i32) (as : [n]a) : *[m]a = 
-	 let to_sort = concat dest as
-	 let idx_to_sort = concat (iota m) is
-	-- let (idx_sort, idx_to_sort) = helper2 dest is as 
-	let key_fun idx = idx_to_sort[idx]
-	-- let sorted_is = helper to_sort key_fun
-	--let sorted_iss = helper idx_to_sort key_fun
-	--let cop = copy sorted_iss
-	let c1 = copy to_sort
-	let c2 = copy idx_to_sort
-	let mapc1 = map (\i -> to_sort[i]) c1
-	let mapc2 = map (\i -> idx_to_sort[i]) c2
-	let tester = helper c1 key_fun
-	let as_vals = scatter (copy to_sort) (iota (length mapc1)) mapc1
-	--let as_vals = scatter (copy to_sort) (helper c1 key_fun) c1
-	let idx_vals = scatter (copy idx_to_sort) (helper c2 key_fun) c2
-	let flags = mk_flags idx_vals
-	let flag_v = bastard_zip m as_vals flags
-	let temp = (seg_reduce f ne flag_v)
-	let v = break 3 + 3
-	in scatter dest (iota_helper temp) temp
-
+	 let fp = zip (iota m) dest
+	 let sp = zip is as
+	 let whole = concat fp sp
+	 let (idx_to_sort, vals) = unzip whole
+	 let key_fun i = idx_to_sort[i]
+	 let idx_of_rel = sort_wrapper idx_to_sort key_fun
+	 let to_flag = map (\i -> vals[idx_of_rel[i]]) (iota_helper vals)
+	 let to_flag_i = map (\i -> idx_to_sort[idx_of_rel[i]]) (iota_helper idx_to_sort)
+	 let flags = mk_flags to_flag_i
+	 let temp = seg_reduce f ne (zip to_flag flags)
+	 in scatter dest (iota_helper temp) temp
 	
