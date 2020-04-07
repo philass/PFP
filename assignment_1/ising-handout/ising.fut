@@ -28,18 +28,24 @@ let rand = rand_f32.rand (0f32, 1f32)
 -- Create a new grid of a given size.  Also produce an identically
 -- sized array of RNG states.
 let random_grid (seed: i32) (h: i32) (w: i32)
-              : ([h][w]rng_engine.rng, [h][w]spin) =
-  ...
+              : ([h][w]rng_engine.rng, [h][w]spin) = 
+	      let rng_state = rng_engine.rng_from_seed [seed]
+	      let states = rng_engine.split_rng (h * w) rng_state
+	      let pair_spins = map (\r -> rand_i8.rand (0i8, 1i8) r) states
+	      let spins = map (\(_, v) -> if v == 0 then -1 else 1) pair_spins
+	      in (unflatten h w states, unflatten h w spins)
+--
+---- Compute $\Delta_e$ for each spin in the grid, using wraparound at
+---- the edges.
+let deltas [h][w] (spins: [h][w]spin): [h][w]i8 = 
+	let u_val r c = if r == 0   then spins[h-1,c  ] else spins[r - 1, c]
+	let d_val r c = if r == h-1 then spins[0  ,c  ] else spins[r + 1, c]
+	let l_val r c = if c == 0   then spins[r  ,w-1] else spins[r , c - 1]
+	let r_val r c = if c == w-1 then spins[r  ,0  ] else spins[r , c + 1]
+	let f r c = 2  * spins[r, c] * ((u_val r c) + (d_val r c) + (l_val r c) + (r_val r c))
+	in tabulate_2d h w f
 
--- Compute $\Delta_e$ for each spin in the grid, using wraparound at
--- the edges.
-let deltas [h][w] (spins: [h][w]spin): [h][w]i8 =
-  let f = (\i j -> (l, r, u d) = (spin[i][(j-1) % w], spin[i][(j+1) % w], spin[(i-1) % h][j], spin[(i + 1) % h][j])
-  let g = (\i -> map (f i) (iota w))
-  in map g (iota h)
-
-  ...
-
+--
 -- The sum of all deltas of a grid.  The result is a measure of how
 -- ordered the grid is.
 let delta_sum [h][w] (spins: [w][h]spin): i32 =
