@@ -52,10 +52,24 @@ let delta_sum [h][w] (spins: [w][h]spin): i32 =
   deltas spins |> flatten |> map1 i32.i8 |> i32.sum
 
 -- Take one step in the Ising 2D simulation.
+
+let helper (r: rng_engine.rng) (spin: spin) (abs_temp: f32) (samplerate: f32) (e: i32) (e_grad: i8) = 
+	let (r1, a) = rand_f32.rand (0f32, 1f32) r
+	let (r2, b) = rand_f32.rand (0f32, 1f32) r1
+	let test = a < samplerate && ((e_grad < (-e_grad)) || b < (f32.i32 e) ** ((f32.i8 (-e_grad) / abs_temp)))
+	in if test then (r2, (-spin)) else (r2, spin)
+
 let step [h][w] (abs_temp: f32) (samplerate: f32)
                 (rngs: [h][w]rng_engine.rng) (spins: [h][w]spin)
               : ([h][w]rng_engine.rng, [h][w]spin) =
-  ...
+	let delta_table = deltas spins
+	let e = delta_sum spins
+	let result = map3 (map3 (\egrad spin r -> helper r spin abs_temp samplerate e egrad)) delta_table spins rngs
+	let f_result = flatten result
+	let (r_vals, spinnys) = unzip f_result
+	in (unflatten h w r_vals, unflatten h w spinnys)
+	
+	
 
 import "lib/github.com/athas/matte/colour"
 
@@ -71,4 +85,4 @@ let render [h][w] (spins: [h][w]spin): [h][w]argb.colour =
 let main (abs_temp: f32) (samplerate: f32)
          (h: i32) (w: i32) (n: i32): [h][w]spin =
   (loop (rngs, spins) = random_grid 1337 h w for _i < n do
-     step abs_temp samplerate rngs spins).2
+     step abs_temp samplerate rngs spins).1
