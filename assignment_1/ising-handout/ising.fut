@@ -33,7 +33,8 @@ let random_grid (seed: i32) (h: i32) (w: i32)
 	      let states = rng_engine.split_rng (h * w) rng_state
 	      let pair_spins = map (\r -> rand_i8.rand (0i8, 1i8) r) states
 	      let spins = map (\(_, v) -> if v == 0 then -1 else 1) pair_spins
-	      in (unflatten h w states, unflatten h w spins)
+	      let (randos, _) = unzip pair_spins 
+	      in (unflatten h w randos, unflatten h w spins)
 --
 ---- Compute $\Delta_e$ for each spin in the grid, using wraparound at
 ---- the edges.
