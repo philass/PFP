@@ -1,5 +1,3 @@
-
-
 let seg_reduce [n] 't (op: t -> t -> t) (ne: t)
                    (arr: [n](t, bool)): []t =
   let (_, flags) = unzip arr
