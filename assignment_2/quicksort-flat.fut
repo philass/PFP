@@ -111,13 +111,13 @@ let partition2 [n] 't (conds: [n]bool) (dummy: t) (arr: [n]t) : (i32, [n]t) =
 --  in scatter xss result vals
 
 
-
+let iota_helper [m] 't (temp : [m]t) : [m]i32 = iota m
 
 let shift_right [n] 't (e:t) (arr:[n]t) =
   map (\i -> if (i == 0) then e else arr[i-1]) (iota n)
 
-let shp_idxs [m] n (shp:[m]i32) : [n]i32 =
-  let flags  = mkFlagArray shp 0i32 (map (+1) (iota m))
+let shp_idxs [m] n (shp:[m]i32) : []i32 =
+  let flags  = mkFlagArray shp 0i32 (map (+1) (iota_helper shp))
   let outinds= sgmSumInt flags <| map (\f -> if f==0 then 0 else f-1) flags
   in outinds --iota n -- TODO: should return [0,0,0,1,1,3,3] if arr_shp is [3,2,0,2]
 
@@ -144,7 +144,7 @@ let offsets [m] [n] (flgs:[n]i32) (shp_accum:[m]i32): [m]i32 =
                            in (if index == 0 then 0 else inds[index-1])) (iota m)
 
 
-let deseg [m] [n] (flgs:[n]i32)  (offsets:[m]i32) (shp_accum:[m]i32) (outinds:[n]i32) : [n]i32 =  
+let deseg [m] [n] (flgs:[n]i32)  (offsets:[m]i32) (shp_accum:[m]i32) (outinds:[]i32) : [n]i32 =  
   let inds = scan (+) 0 flgs
   let offsets_rot = shift_right 0 offsets
   let z = map (\i -> offsets_rot[outinds[i]]) (iota n)
@@ -248,12 +248,12 @@ let quicksortL [n][m] (shp: [m]i32, arr: [n]f32) : ([]i32, []f32) =
 --let main [n] (arr: [n]i32) : (i32, [n]i32) =
 --    partition2 (map (\x -> (x % 2) == 0i32) arr) 0i32 arr
 
-let main0 [m][n] (shp: [m]i32) (arr: [n]i32) : ([m]i32, [m]i32, [n]i32) =
-    let (ps, (shp',arr')) = partition2L (map (\x -> (x % 2) == 0i32) arr) 0i32 (shp, arr)
-    in  (ps, shp', arr')
+--let main0 [m][n] (shp: [m]i32) (arr: [n]i32) : ([m]i32, [m]i32, [n]i32) =
+--   let (ps, (shp',arr')) = partition2L (map (\x -> (x % 2) == 0i32) arr) 0i32 (shp, arr)
+ --   in  (ps, shp', arr')
 
 -- futhark dataset -b --f32-bounds=-1000000.0:1000000.0 -g [10000000]f32 | ./quicksort-flat -t /dev/stderr -r 2 > /dev/null
---let main [n] (arr: [n]f32) =
---   let (_,res) = quicksortL ([n], arr)   
- --   in  res
+-- let main [n] (arr: [n]f32) =
+-- let (_,res) = quicksortL ([n], arr)   
+-- in  res
 
