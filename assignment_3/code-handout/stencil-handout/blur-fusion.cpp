@@ -50,6 +50,8 @@ void validate(const int Y, const int X, const int rowlen, NUM* a1, NUM* a2) {
         NUM v1 = a1[ind];
         NUM v2 = a2[ind];
         if(fabs((float)(v1-v2)) > EPS) {
+            printf("Val is : %d\n", v1);
+            printf("Val is : %d\n", v2);
             std::cout<<"INVALID at index: "<<i<<", v1: "<<v1<<" v2: "<<v2<<"\n";
             exit(1);
         }
@@ -161,6 +163,7 @@ void slideWindow(NUM* in, NUM* out) {
  *         the final assignment is also provided, i.e.,
  *         `1. blurx[y+1][x] = ..` and `2. IND(out, ind_y, ind_x) = ...`
  */
+
 template<class NUM, int32_t T>
 void tiledFused(NUM* in, NUM* out) {
   #pragma omp parallel default(shared) 
@@ -173,8 +176,7 @@ void tiledFused(NUM* in, NUM* out) {
           for(int32_t y=-1; y<T+1; y++) { 
             for(int32_t x=0; x<T; x++) {
                 // 1. fill in the code here
-                NUM dummy = 3;
-                blurx[y+1][x] = dummy;
+                blurx[y+1][x] = IND(in, modY(ty+y), modX(tx+x-1)) + IND(in, modY(ty+y) ,  tx+x) + IND(in, modY(ty+y), modX(tx+x+1));
             }
           }
    
@@ -183,8 +185,9 @@ void tiledFused(NUM* in, NUM* out) {
             for(int32_t x=0; x<T; x++) {
                 // 2. fill in the code here 
                 int32_t ind_y = ty+y-1, ind_x = tx+x;
-                NUM dummy = 3;
-                IND(out, ind_y, ind_x) = dummy;
+
+                NUM dummy = (blurx[y+1][x]  + blurx[y-1][x] + blurx[y][x] );
+                IND(out, ind_y, ind_x) = dummy / 9;
             }
           }
           // end 
@@ -192,6 +195,7 @@ void tiledFused(NUM* in, NUM* out) {
     }
   }
 }
+
 
 /**
  * Weekly 3, Task2.b: 
@@ -208,6 +212,7 @@ void tiledFused(NUM* in, NUM* out) {
  *         the final assignment is also provided, i.e.,
  *         `1. blurx[(y+2)%3][x] = ..` and `2. IND(out, ty+y, x) = ...`
  */ 
+
 template<class NUM, int32_t T>
 void tiledWindow(NUM* in, NUM* out) {
   #pragma omp parallel default(shared) 
@@ -219,16 +224,15 @@ void tiledWindow(NUM* in, NUM* out) {
             // computation of `blurx`
             for(int32_t x=0; x<DIM_X; x++) {
                 // 1. fill in the code here
-                NUM dummy = 3;
+                NUM dummy = IND(in, modY(ty + y + 1), modX(x-1)) + IND(in, modY(ty + y + 1), modX(x)) + IND(in, modY(ty + y + 1), modX(x+1));
                 blurx[(y+2)%3][x] = dummy;
             }
         
             if(y < 0) continue;
-
             // computation of `out` based on previously computed `blurx`
             for(int32_t x=0; x<DIM_X; x++) {
                 // 2. fill in the code here
-                NUM dummy = 3;
+                NUM dummy = blurx[0][x] / 9 + blurx[1][x] / 9+ blurx[2][x] / 9;
                 IND(out, ty+y, x) = dummy;
             }
         }  // end 
@@ -349,6 +353,7 @@ void runStencils(NUM* inp) {
 int main(int argc, char** argv) {
     printf("DIMS: y: %d, x: %d\n\n", DIM_Y, DIM_X);
 
+    
     { // running floats
         float* inp = (float*)malloc(DIM_X*DIM_Y*sizeof(float));
         for(uint32_t i=0; i<DIM_Y*DIM_X; i++) {
@@ -359,6 +364,7 @@ int main(int argc, char** argv) {
         free(inp);
         printf("\n\n");
     }
+
 
     { // running doubles
         double* inp = (double*)malloc(DIM_X*DIM_Y*sizeof(double));
@@ -372,12 +378,12 @@ int main(int argc, char** argv) {
     }
 
     { // running uint8_t
-        uint8_t* inp = (uint8_t*)malloc(DIM_X*DIM_Y*sizeof(uint8_t));
+        uint16_t* inp = (uint16_t*)malloc(DIM_X*DIM_Y*sizeof(uint16_t));
         for(uint32_t i=0; i<DIM_Y*DIM_X; i++) {
             inp[i] = rand() % 64;
         }
-        printf("RUNNING UINT8:\n");
-        runStencils<uint8_t,T2D,T1D>(inp);
+        printf("RUNNING UINT16:\n");
+        runStencils<uint16_t,T2D,T1D>(inp);
         free(inp);
         printf("\n\n");
     }

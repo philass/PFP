@@ -189,6 +189,15 @@ void tiledFused(NUM* inp1, NUM* out1) {
                 for(int32_t q0 = 0; q0 < UB; q0++) {
                     int32_t q = UB - 1 - q0; // q = UB-1 ... 0
                     
+                    
+                    for (int32_t x0 = MAX(0, tx - q); x0 < MIN(tx + T + q, DIM_X);x0 += 1) {
+                        
+                       int i_in = q0 % 2;
+                       int i_out = (i_in + 1) % 2;
+                       tile[i_out][x0 - tx + FUSEDEG] = (tile[i_in][x0 - tx + FUSEDEG - 1] + tile[i_in][x0 - tx + FUSEDEG] + tile[i_in][x0 - tx + FUSEDEG + 1]) / 3;
+                    }
+                       
+
                     // 1. FILL IN THE CODE HERE:
                     //    Hints:
                     //      1. you need a loop going from `x0 = MAX(0,tx-q)` to `x0 < MIN(tx+T+q, DIM_X)`
